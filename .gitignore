@@ -1,0 +1,16 @@
+/target/
+**/*.rs.bk
+
+# Cargo
+.cargo/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
