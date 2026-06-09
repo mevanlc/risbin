@@ -153,7 +153,10 @@ fn glob_filters_paths() {
     write_file(&txt, b"hello");
 
     let mut cmd = risbin_cmd();
-    cmd.arg("-g").arg("*.md").arg(md.as_os_str()).arg(txt.as_os_str());
+    cmd.arg("-g")
+        .arg("*.md")
+        .arg(md.as_os_str())
+        .arg(txt.as_os_str());
 
     let assert = cmd.assert().success();
     let out = String::from_utf8_lossy(&assert.get_output().stdout);
@@ -170,7 +173,10 @@ fn glob_implicit_negation_excludes() {
     write_file(&txt, b"hello");
 
     let mut cmd = risbin_cmd();
-    cmd.arg("-G").arg("*.md").arg(md.as_os_str()).arg(txt.as_os_str());
+    cmd.arg("-G")
+        .arg("*.md")
+        .arg(md.as_os_str())
+        .arg(txt.as_os_str());
 
     let assert = cmd.assert().success();
     let out = String::from_utf8_lossy(&assert.get_output().stdout);

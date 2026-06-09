@@ -67,10 +67,7 @@ impl Classifier {
 
     /// Classify a reader by streaming through it until a NUL byte is found or
     /// EOF is reached.
-    pub fn classify_reader<R: io::Read>(
-        &mut self,
-        reader: R,
-    ) -> io::Result<Kind> {
+    pub fn classify_reader<R: io::Read>(&mut self, reader: R) -> io::Result<Kind> {
         // Mirror ripgrep's approach: perform BOM sniffing/transcoding before
         // binary detection so UTF-16 (with BOM) is treated as text.
         let (buf, decode_buffer) = (&mut self.buf, &mut self.decode_buffer);
@@ -90,10 +87,7 @@ impl Classifier {
     }
 
     /// Classify a file by path.
-    pub fn classify_path<P: AsRef<std::path::Path>>(
-        &mut self,
-        path: P,
-    ) -> io::Result<Kind> {
+    pub fn classify_path<P: AsRef<std::path::Path>>(&mut self, path: P) -> io::Result<Kind> {
         let file = std::fs::File::open(path)?;
         self.classify_reader(file)
     }

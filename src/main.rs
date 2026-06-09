@@ -183,20 +183,15 @@ fn run() -> anyhow::Result<ExitCode> {
             if path == OsString::from("-") {
                 let stdin = std::io::stdin();
                 let locked = stdin.lock();
-                let cont = process_paths_from_reader(
-                    &cwd,
-                    locked,
-                    nul,
-                    |path| process_path(path),
-                )?;
+                let cont = process_paths_from_reader(&cwd, locked, nul, |path| process_path(path))?;
                 if !cont {
                     // stopped
                 }
             } else {
-                let file = std::fs::File::open(&path)
-                    .with_context(|| format!("failed to open list file {}", path.to_string_lossy()))?;
-                let cont =
-                    process_paths_from_reader(&cwd, file, nul, |p| process_path(p))?;
+                let file = std::fs::File::open(&path).with_context(|| {
+                    format!("failed to open list file {}", path.to_string_lossy())
+                })?;
+                let cont = process_paths_from_reader(&cwd, file, nul, |p| process_path(p))?;
                 if !cont {
                     // stopped
                 }
@@ -214,7 +209,12 @@ fn run() -> anyhow::Result<ExitCode> {
         return Err(err.into());
     }
 
-    Ok(exit_code_from(saw_success, saw_error, wrote_any_record, opts.error_flag))
+    Ok(exit_code_from(
+        saw_success,
+        saw_error,
+        wrote_any_record,
+        opts.error_flag,
+    ))
 }
 
 fn exit_code_from(
@@ -304,8 +304,8 @@ fn parse_args() -> anyhow::Result<Opts> {
 
             Long("error-flag") => {
                 let v = p.value()?;
-                error_flag = ErrorFlagMode::parse(&v.to_string_lossy())
-                    .map_err(anyhow::Error::msg)?;
+                error_flag =
+                    ErrorFlagMode::parse(&v.to_string_lossy()).map_err(anyhow::Error::msg)?;
             }
 
             Short('g') | Long("glob") => {
@@ -369,9 +369,7 @@ fn build_overrides(cwd: &Path, opts: &Opts) -> anyhow::Result<Option<ignore::ove
     }
     for g in &opts.globs_implicit_negated {
         if starts_with_unescaped_bang(g) {
-            anyhow::bail!(
-                "-G patterns must not start with unescaped '!': {g} (use -g instead)"
-            );
+            anyhow::bail!("-G patterns must not start with unescaped '!': {g} (use -g instead)");
         }
         builder.add(&format!("!{g}"))?;
     }
@@ -382,9 +380,7 @@ fn build_overrides(cwd: &Path, opts: &Opts) -> anyhow::Result<Option<ignore::ove
     }
     for g in &opts.iglobs_implicit_negated {
         if starts_with_unescaped_bang(g) {
-            anyhow::bail!(
-                "-I patterns must not start with unescaped '!': {g} (use -i instead)"
-            );
+            anyhow::bail!("-I patterns must not start with unescaped '!': {g} (use -i instead)");
         }
         builder.add(&format!("!{g}"))?;
     }
@@ -455,7 +451,10 @@ fn classify_one_path(
     // Enforce "no directories" early.
     if let Ok(md) = std::fs::metadata(path) {
         if md.is_dir() {
-            return Err(io::Error::new(io::ErrorKind::IsADirectory, "is a directory"));
+            return Err(io::Error::new(
+                io::ErrorKind::IsADirectory,
+                "is a directory",
+            ));
         }
     }
     classifier.classify_path(path)
