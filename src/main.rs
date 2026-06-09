@@ -180,10 +180,10 @@ fn run() -> anyhow::Result<ExitCode> {
             }
         }
         InputSource::FilesFrom { path, nul } => {
-            if path == OsString::from("-") {
+            if path == "-" {
                 let stdin = std::io::stdin();
                 let locked = stdin.lock();
-                let cont = process_paths_from_reader(&cwd, locked, nul, |path| process_path(path))?;
+                let cont = process_paths_from_reader(&cwd, locked, nul, &mut process_path)?;
                 if !cont {
                     // stopped
                 }
@@ -191,7 +191,7 @@ fn run() -> anyhow::Result<ExitCode> {
                 let file = std::fs::File::open(&path).with_context(|| {
                     format!("failed to open list file {}", path.to_string_lossy())
                 })?;
-                let cont = process_paths_from_reader(&cwd, file, nul, |p| process_path(p))?;
+                let cont = process_paths_from_reader(&cwd, file, nul, process_path)?;
                 if !cont {
                     // stopped
                 }
